@@ -2,6 +2,11 @@ import { requestSuiFromFaucetV0 } from "@mysten/sui/faucet";
 import { faucetHost } from "../config";
 import { getBalance, convertMistToSui } from "./balance";
 
+/**
+ * Fund an account from the faucet.
+ * @param address - The address to fund.
+ * @returns A promise that resolves to a boolean indicating success.
+ */
 export async function fundAccountFromFaucet(address: string): Promise<boolean> {
     const balanceBeforeFunding = await getBalance(address);
 
@@ -12,9 +17,11 @@ export async function fundAccountFromFaucet(address: string): Promise<boolean> {
         });
 
         if (!response?.error) {
-            console.log("--------------------------------");
-            console.log(`Requested funds from faucet for address ${address}`);
-            console.log("--------------------------------");
+            console.log("\x1b[36m--------------------------------\x1b[0m");
+            console.log(
+                `\x1b[32mRequested funds from faucet for address ${address}\x1b[0m`
+            );
+            console.log("\x1b[36m--------------------------------\x1b[0m");
         } else {
             throw new Error(`Faucet error: ${response.error}`);
         }

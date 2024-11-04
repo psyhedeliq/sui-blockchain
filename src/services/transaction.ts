@@ -1,9 +1,16 @@
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Transaction } from "@mysten/sui/transactions";
 import { MIST_PER_SUI } from "@mysten/sui/utils";
-import { suiClient } from "../config";
+import { NETWORK, suiClient } from "../config";
 import { TransactionResult } from "../types/types";
 
+/**
+ * Transfer SUI from one wallet to another.
+ * @param amount - The amount of SUI to transfer.
+ * @param fromKeypair - The keypair of the sender.
+ * @param toAddress - The address of the recipient.
+ * @returns A promise that resolves to a TransactionResult.
+ */
 export async function transferSui(
     amount: number,
     fromKeypair: Ed25519Keypair,
@@ -31,6 +38,13 @@ export async function transferSui(
 
         console.log("--------------------------------");
         console.log(`Transaction: ${JSON.stringify(transaction, null, 2)}`);
+        console.log("--------------------------------");
+
+        // Display the transaction URL on the Devnet Sui Explorer
+        console.log("--------------------------------");
+        console.table({
+            "View the transaction at": `https://${NETWORK}.suivision.xyz/txblock/${result.digest}`,
+        });
         console.log("--------------------------------");
 
         return {
