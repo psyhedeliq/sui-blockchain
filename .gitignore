@@ -7,9 +7,9 @@ dist/
 .env.local
 .env.*.local
 
-# Keypair files
-src/funding_keypair.json
-src/recipient_keypair.json
+# Keypairs
+src/keypairs/*.json
+!src/keypairs/.gitkeep
 
 # Logs
 npm-debug.log*

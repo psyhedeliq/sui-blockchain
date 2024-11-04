@@ -1,16 +1,6 @@
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import * as fs from "fs";
-import * as path from "path";
-
-// Define the paths to store the keypairs
-export const FUNDING_KEYPAIR_PATH = path.join(
-    __dirname,
-    "funding_keypair.json"
-);
-export const RECIPIENT_KEYPAIR_PATH = path.join(
-    __dirname,
-    "recipient_keypair.json"
-);
+import { Wallet } from "../../types/types";
 
 /**
  * Create a new keypair and save it to a file.
@@ -19,7 +9,7 @@ export const RECIPIENT_KEYPAIR_PATH = path.join(
 export function createNewKeypair(keypairPath: string): Ed25519Keypair {
     const keypair = new Ed25519Keypair();
 
-    // Save the secret key as base64
+    // Export the keypair
     const exportedKeypair = {
         secretKey: keypair.getSecretKey(),
         publicKey: keypair.getPublicKey(),
@@ -28,6 +18,7 @@ export function createNewKeypair(keypairPath: string): Ed25519Keypair {
     // Save the keypair to a file
     fs.writeFileSync(keypairPath, JSON.stringify(exportedKeypair, null, 2));
     console.log(`Keypair created and saved to ${keypairPath}`);
+
     return keypair;
 }
 
@@ -44,6 +35,7 @@ export function loadKeypair(keypairPath: string): Ed25519Keypair {
     try {
         // Read the keypair from the file
         const keypairData = JSON.parse(fs.readFileSync(keypairPath, "utf8"));
+
         // Create a new keypair from the secret key
         const keypair = Ed25519Keypair.fromSecretKey(keypairData.secretKey);
         console.log(`Keypair loaded from ${keypairPath}`);
@@ -65,21 +57,15 @@ export function getAddress(keypair: Ed25519Keypair): string {
 }
 
 /**
- * A wallet object for the funding account.
+ * Create a wallet object.
+ * @param {string} keypairPath - The path to the keypair file.
+ * @returns {Wallet} The wallet object.
  */
-export const fundedWallet = {
-    keypairPath: FUNDING_KEYPAIR_PATH,
-    create: () => createNewKeypair(FUNDING_KEYPAIR_PATH),
-    load: () => loadKeypair(FUNDING_KEYPAIR_PATH),
-    getAddress: (keypair: Ed25519Keypair) => getAddress(keypair),
-};
-
-/**
- * A wallet object for the recipient.
- */
-export const recipientWallet = {
-    keypairPath: RECIPIENT_KEYPAIR_PATH,
-    create: () => createNewKeypair(RECIPIENT_KEYPAIR_PATH),
-    load: () => loadKeypair(RECIPIENT_KEYPAIR_PATH),
-    getAddress: (keypair: Ed25519Keypair) => getAddress(keypair),
-};
+export function createWallet(keypairPath: string): Wallet {
+    return {
+        keypairPath,
+        create: () => createNewKeypair(keypairPath),
+        load: () => loadKeypair(keypairPath),
+        getAddress: (keypair: Ed25519Keypair) => getAddress(keypair),
+    };
+}
