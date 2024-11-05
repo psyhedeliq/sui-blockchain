@@ -12,3 +12,25 @@ export interface TransactionResult {
     error?: string;
     digest?: string;
 }
+
+export interface NFT {
+    id: string;
+    name: string;
+    description: string;
+    url: string;
+}
+
+export interface NFTMintResult extends TransactionResult {
+    nft?: NFT;
+}
+
+export interface CollectionCreationResult {
+    success: boolean;
+    digest?: string;
+    collection?: {
+        id: string;
+        name: string;
+        description: string;
+    };
+    error?: string;
+}

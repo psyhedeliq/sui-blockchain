@@ -51,31 +51,6 @@ async function main(): Promise<void> {
         "Recipient balance after funding":
             convertMistToSui(recipientBalanceAfterFunding) + " SUI",
     });
-
-    // Perform transfer
-    // Initial amount to transfer up to 9 SUI, because of the faucet mount of SUI dispensed of 10 SUI per call plus the 0.01 SUI cost per call. This can be increased once you have more funds.
-    const amountInSui = 9;
-    console.log("\x1b[36m--------------------------------\x1b[0m");
-    console.log(`\x1b[32mTransferring ${amountInSui} SUI\x1b[0m`);
-    console.log("\x1b[36m--------------------------------\x1b[0m");
-
-    const result = await transferSui(
-        amountInSui,
-        fundingKeypair,
-        recipientAddress
-    );
-    if (!result.success) {
-        console.error("Transfer failed:", result.error);
-        return;
-    }
-
-    // Show final balances
-    const finalBalance = await getBalance(recipientAddress);
-    console.table({
-        "Final recipient balance": convertMistToSui(finalBalance) + " SUI",
-        "Final recipient balance in MIST":
-            getMistBalance(finalBalance) + " MIST",
-    });
 }
 
 main().catch((err) => {

@@ -1,7 +1,7 @@
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Transaction } from "@mysten/sui/transactions";
 import { MIST_PER_SUI } from "@mysten/sui/utils";
-import { NETWORK, suiClient } from "../config";
+import { NETWORK, suiClient } from "../config/config";
 import { TransactionResult } from "../types/types";
 
 /**
@@ -20,14 +20,26 @@ export async function transferSui(
         const tx = new Transaction();
         const amountInMist = Number(MIST_PER_SUI) * amount;
 
-        const [coin] = tx.splitCoins(tx.gas, [amountInMist]);
-        tx.transferObjects([coin], toAddress);
+        // const [coin] = tx.splitCoins(tx.gas, [amountInMist]);
+        // tx.transferObjects([coin], toAddress);
+
+        const [coin] = tx.splitCoins(tx.gas, [
+            tx.pure.u64(BigInt(amountInMist)),
+        ]);
+        tx.transferObjects([coin], tx.pure.address(toAddress));
 
         const result = await suiClient.signAndExecuteTransaction({
             transaction: tx,
             signer: fromKeypair,
+            options: {
+                showEffects: true,
+                showEvents: true,
+                showObjectChanges: true,
+            },
+            requestType: "WaitForLocalExecution",
         });
 
+        // TODO: Remove this as it's redundant
         const transaction = await suiClient.waitForTransaction({
             digest: result.digest,
             options: {

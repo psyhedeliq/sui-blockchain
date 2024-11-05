@@ -1,5 +1,5 @@
 import { requestSuiFromFaucetV0 } from "@mysten/sui/faucet";
-import { faucetHost } from "../config";
+import { faucetHost } from "../config/config";
 import { getBalance, convertMistToSui } from "./balance";
 
 /**

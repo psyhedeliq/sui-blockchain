@@ -1,5 +1,5 @@
 import { MIST_PER_SUI } from "@mysten/sui/utils";
-import { suiClient } from "../config";
+import { suiClient } from "../config/config";
 import { CoinBalance } from "@mysten/sui/dist/cjs/client";
 
 /**
