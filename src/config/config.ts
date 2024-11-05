@@ -9,10 +9,13 @@ import { getFaucetHost } from "@mysten/sui/faucet";
 export const NETWORK = "devnet";
 
 // Get the fullnode URL for the network
-const rpcUrl = getFullnodeUrl(NETWORK);
+const version = getFullnodeUrl(NETWORK);
+console.log("--------------------------------");
+console.log(`'Sui Version:', ${version}`);
+console.log("--------------------------------");
 
 // Create a SuiClient instance pointing to the desired network
-export const suiClient = new SuiClient({ url: rpcUrl });
+export const suiClient = new SuiClient({ url: version });
 
 // Get the faucet host for the network
 export const faucetHost = getFaucetHost(NETWORK);

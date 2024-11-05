@@ -17,19 +17,19 @@ export async function transferSui(
     toAddress: string
 ): Promise<TransactionResult> {
     try {
-        const tx = new Transaction();
+        const txb = new Transaction();
         const amountInMist = Number(MIST_PER_SUI) * amount;
 
         // const [coin] = tx.splitCoins(tx.gas, [amountInMist]);
         // tx.transferObjects([coin], toAddress);
 
-        const [coin] = tx.splitCoins(tx.gas, [
-            tx.pure.u64(BigInt(amountInMist)),
+        const [coin] = txb.splitCoins(txb.gas, [
+            txb.pure.u64(BigInt(amountInMist)),
         ]);
-        tx.transferObjects([coin], tx.pure.address(toAddress));
+        txb.transferObjects([coin], txb.pure.address(toAddress));
 
         const result = await suiClient.signAndExecuteTransaction({
-            transaction: tx,
+            transaction: txb,
             signer: fromKeypair,
             options: {
                 showEffects: true,
@@ -39,17 +39,8 @@ export async function transferSui(
             requestType: "WaitForLocalExecution",
         });
 
-        // TODO: Remove this as it's redundant
-        const transaction = await suiClient.waitForTransaction({
-            digest: result.digest,
-            options: {
-                showEvents: true,
-                showObjectChanges: true,
-            },
-        });
-
         console.log("--------------------------------");
-        console.log(`Transaction: ${JSON.stringify(transaction, null, 2)}`);
+        console.log(`Transaction: ${JSON.stringify(result, null, 2)}`);
         console.log("--------------------------------");
 
         // Display the transaction URL on the Devnet Sui Explorer

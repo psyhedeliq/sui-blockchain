@@ -1,5 +1,5 @@
 import { fundedWallet, recipientWallet } from "../services/wallets";
-import { createCollection, mintNFT, transferNFT } from "../services/nft";
+import { mintNFT, transferNFT } from "../services/nft";
 
 /**
  * Mint and transfer an NFT.
@@ -13,27 +13,27 @@ async function mintAndTransferNFT(): Promise<void> {
     console.log(`\x1b[32mNFT Operations\x1b[0m`);
     console.log("\x1b[36m--------------------------------\x1b[0m");
 
-    // Create a new NFT collection
-    console.log("\x1b[36m--------------------------------\x1b[0m");
-    console.log("\x1b[32mCreating NFT Collection\x1b[0m");
-    console.log("\x1b[36m--------------------------------\x1b[0m");
+    // // Create a new NFT collection
+    // console.log("\x1b[36m--------------------------------\x1b[0m");
+    // console.log("\x1b[32mCreating NFT Collection\x1b[0m");
+    // console.log("\x1b[36m--------------------------------\x1b[0m");
 
-    const collectionResult = await createCollection(
-        fundingKeypair,
-        "My NFT Collection",
-        "A collection created using the Sui TypeScript SDK"
-    );
+    // const collectionResult = await createCollection(
+    //     fundingKeypair,
+    //     "My NFT Collection",
+    //     "A collection created using the Sui TypeScript SDK"
+    // );
 
-    if (!collectionResult.success || !collectionResult.collection) {
-        console.error("Failed to create collection:", collectionResult.error);
-        return;
-    }
+    // if (!collectionResult.success || !collectionResult.collection) {
+    //     console.error("Failed to create collection:", collectionResult.error);
+    //     return;
+    // }
 
-    console.table({
-        "Collection ID": collectionResult.collection.id,
-        "Collection Name": collectionResult.collection.name,
-        "Collection Description": collectionResult.collection.description,
-    });
+    // console.table({
+    //     "Collection ID": collectionResult.collection.id,
+    //     "Collection Name": collectionResult.collection.name,
+    //     "Collection Description": collectionResult.collection.description,
+    // });
 
     console.log("\x1b[36m--------------------------------\x1b[0m");
     console.log(`\x1b[32mMinting NFT\x1b[0m`);
