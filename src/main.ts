@@ -1,9 +1,7 @@
 import { fundedWallet, recipientWallet } from "./services/wallets";
-import { getMistBalance } from "./services/balance";
 import { convertMistToSui } from "./services/balance";
 import { fundAccountFromFaucet } from "./services/faucet";
 import { getBalance } from "./services/balance";
-import { transferSui } from "./services/transaction";
 
 /**
  * Main function to run the program.

@@ -1,6 +1,9 @@
 import { fundedWallet, recipientWallet } from "../services/wallets";
 import { createCollection, mintNFT, transferNFT } from "../services/nft";
 
+/**
+ * Mint and transfer an NFT.
+ */
 async function mintAndTransferNFT(): Promise<void> {
     const fundingKeypair = fundedWallet.load();
     const recipientKeypair = recipientWallet.load();
