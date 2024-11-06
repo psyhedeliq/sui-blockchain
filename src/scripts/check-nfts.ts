@@ -13,6 +13,10 @@ async function checkRecipientNFTs(): Promise<void> {
 
     try {
         // Query the Sui network for all objects owned by the recipient address
+        // You can also filter by type:
+        // filter: {
+        //     StructType: "0x2::coin::Coin"
+        // },
         const objects = await suiClient.getOwnedObjects({
             owner: recipientAddress,
             options: {
