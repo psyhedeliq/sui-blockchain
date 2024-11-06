@@ -1,12 +1,112 @@
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
-import {
-    CollectionCreationResult,
-    NFTMintResult,
-    TransactionResult,
-} from "../types/types";
 import { Transaction } from "@mysten/sui/transactions";
+import fs from "fs";
+import path from "path";
 import { suiClient } from "../config/config";
-import { bcs } from "@mysten/sui/bcs";
+import { NFTMintResult, TransactionResult } from "../interfaces/interfaces";
+import { compileMovePackage } from "../util/move-compiler";
+
+// Store the package ID after deployment
+export let NFT_PACKAGE_ID: string | null =
+    "0x40de7c21a1b6b13a41de5eb8bdfa562b9529f38d6d97ffa21cb5e6dc0366ff8b";
+
+/**
+ * How to handle gas in production:
+ * Query the network's current gas price instead of using fixed values [await suiClient.getReferenceGasPrice()]
+ * Calculate the budget based on the actual transaction complexity
+ * Handle gas-related errors properly
+ * This is important because:
+ * - Gas prices can fluctuate based on network conditions
+ * - Fixed gas budgets might be too high (wasteful) or too low (fail)
+ * - Different transactions require different amounts of gas
+ */
+
+/**
+ * Deploys an NFT package.
+ * @param creator - The keypair of the creator.
+ * @returns The ID of the deployed package.
+ */
+export async function deployNFTPackage(
+    creator: Ed25519Keypair
+): Promise<string> {
+    try {
+        const movePath = path.join(__dirname, "../move/simple_nft");
+
+        // Compile the Move code to deploy the NFT package/contract
+        try {
+            await compileMovePackage(movePath);
+        } catch (error) {
+            console.error("Error compiling Move code:", error);
+            throw new Error("Failed to compile Move code");
+        }
+
+        // Read the compiled bytecode
+        const compiledBytes = fs.readFileSync(
+            path.join(
+                movePath,
+                "build/simple_nft/bytecode_modules/simple_nft.mv"
+            )
+        );
+
+        // Create a new transaction object
+        const txb = new Transaction();
+        // Set a gas budget for the transaction
+        txb.setGasBudget(100000000);
+
+        // Publish the compiled bytecode to the Sui network
+        // upgradeCap stands for "upgrade capability" and is a standard pattern in Sui
+        const [upgradeCap] = txb.publish({
+            modules: [Array.from(compiledBytes)], // Convert compiled Move bytecode to an array format required by the SDK
+            dependencies: [
+                "0x1", // MoveStdlib - Core Move language features
+                "0x2", // Sui Framework - Sui's built-in modules - Sui-specific features
+            ],
+        });
+
+        // Transfer the upgrade cap to the publisher
+        // This capability allows the publisher to upgrade the package later
+        // Without this, the package would be immutable
+        txb.transferObjects(
+            [upgradeCap], // The upgrade capability object that controls upgrade rights
+            txb.pure.address(creator.toSuiAddress()) // The creator's address
+        );
+
+        const result = await suiClient.signAndExecuteTransaction({
+            transaction: txb,
+            signer: creator,
+            options: {
+                showEvents: true,
+                showObjectChanges: true,
+                showEffects: true,
+            },
+            requestType: "WaitForLocalExecution",
+        });
+
+        if (result.effects?.status?.status !== "success") {
+            throw new Error(
+                result.effects?.status?.error || "Failed to publish package"
+            );
+        }
+
+        // Find the package object (owner field will be Immutable)
+        const packageObject = result.effects?.created?.find(
+            (obj) => obj.owner === "Immutable"
+        );
+
+        if (!packageObject?.reference?.objectId) {
+            throw new Error(
+                "Could not find package ID in transaction response"
+            );
+        }
+
+        // Store the package ID, not the upgrade cap ID
+        NFT_PACKAGE_ID = packageObject.reference.objectId;
+        return NFT_PACKAGE_ID!;
+    } catch (error) {
+        console.error("Error deploying package:", error);
+        throw error;
+    }
+}
 
 /**
  * Mint a new NFT
@@ -17,63 +117,31 @@ import { bcs } from "@mysten/sui/bcs";
  * @returns The result of the NFT minting
  */
 export async function mintNFT(
+    packageId: string,
     creator: Ed25519Keypair,
     name: string,
     description: string,
     url: string
 ): Promise<NFTMintResult> {
     try {
-        const packageObj = await suiClient.getObject({
-            id: "0x2",
-            options: { showContent: true },
-        });
-
-        console.log("--------------------------------");
-        console.log({
-            "Package Object": packageObj,
-        });
-        console.log("--------------------------------");
-
         const txb = new Transaction();
+        // Set a gas budget for the transaction
         txb.setGasBudget(100000000);
 
-        // //Call the NFT mint function from the NFT package
-        // const mintCall = txb.moveCall({
-        //     target: "0x2::devnet_nft::mint",
-        //     arguments: [
-        //         txb.pure.string(name),
-        //         txb.pure.string(description),
-        //         txb.pure.string(url),
-        //     ],
-        // });
-
-        // Convert strings to vector<u8> (byte arrays)
-        const nameBytes = Array.from(Buffer.from(name, "utf8"));
-        const descriptionBytes = Array.from(Buffer.from(description, "utf8"));
-        const urlBytes = Array.from(Buffer.from(url, "utf8"));
-
-        // Convert each byte to a TransactionArgument ('u8')
-        const nameArgs = nameBytes.map((byte) => txb.pure("u8", byte));
-        const descriptionArgs = descriptionBytes.map((byte) =>
-            txb.pure("u8", byte)
-        );
-        const urlArgs = urlBytes.map((byte) => txb.pure("u8", byte));
-
-        // Call the NFT mint function from the NFT package using makeMoveVec
+        /**
+         * The minting process uses moveCall to interact with our Move contract:
+         * Calls the mint_and_transfer function from our package
+         * Uses txb.pure.string() to properly format Move string arguments
+         * The NFT is automatically transferred to the creator's address by the Move code
+         */
         txb.moveCall({
-            target: "0x2::devnet_nft::mint",
+            target: `${packageId}::simple_nft::mint_and_transfer`, // The target function in the Move contract
             arguments: [
-                txb.makeMoveVec({ elements: nameArgs }),
-                txb.makeMoveVec({ elements: descriptionArgs }),
-                txb.makeMoveVec({ elements: urlArgs }),
+                txb.pure.string(name),
+                txb.pure.string(description),
+                txb.pure.string(url),
             ],
         });
-
-        console.log("--------------------------------");
-        console.log({
-            "Transaction details": txb,
-        });
-        console.log("--------------------------------");
 
         const result = await suiClient.signAndExecuteTransaction({
             transaction: txb,
@@ -85,8 +153,6 @@ export async function mintNFT(
             },
             requestType: "WaitForLocalExecution",
         });
-
-        console.log("Transaction Result:", JSON.stringify(result, null, 2));
 
         if (result.effects?.status?.status !== "success") {
             throw new Error(
@@ -121,153 +187,60 @@ export async function mintNFT(
     }
 }
 
+/**
+ * Transfers an NFT to the recipient.
+ * @param nftId - The ID of the NFT to transfer.
+ * @param fromKeypair - The keypair of the sender.
+ * @param recipientAddress - The address of the recipient.
+ */
 export async function transferNFT(
     nftId: string,
     fromKeypair: Ed25519Keypair,
-    toAddress: string
+    recipientAddress: string
 ): Promise<TransactionResult> {
     try {
-        const tx = new Transaction();
-        tx.setGasBudget(100000000);
+        const txb = new Transaction();
+        // Set a gas budget for the transaction
+        txb.setGasBudget(100000000);
 
-        // Transfer the NFT
-        tx.transferObjects([tx.object(nftId)], toAddress);
+        /**
+         * The transfer implementation:
+         * Our NFT has the store capability
+         * We can use Sui's built-in transfer module
+         * No need for custom Move functions for transfer
+         */
+        txb.transferObjects(
+            [txb.object(nftId)], // The NFT object to transfer
+            txb.pure.address(recipientAddress) // The recipient's address
+        );
 
         const result = await suiClient.signAndExecuteTransaction({
-            transaction: tx,
+            transaction: txb,
             signer: fromKeypair,
+            options: {
+                showEffects: true,
+                showEvents: true,
+                showObjectChanges: true,
+            },
+            requestType: "WaitForLocalExecution",
         });
 
-        await suiClient.waitForTransaction({
-            digest: result.digest,
-        });
+        if (result.effects?.status?.status !== "success") {
+            throw new Error(result.effects?.status?.error || "Transfer failed");
+        }
 
         return {
             success: true,
             digest: result.digest,
+            effects: result.effects,
+            events: result.events,
+            objectChanges: result.objectChanges,
         };
     } catch (error) {
+        console.error("Error transferring NFT:", error);
         return {
             success: false,
             error: (error as Error).message,
         };
     }
 }
-
-// /**
-//  * Create a new NFT Collection
-//  * @param creator - The keypair of the creator
-//  * @param name - The name of the collection
-//  * @param description - The description of the collection
-//  * @returns The result of the collection creation
-//  */
-// export async function createCollection(
-//     creator: Ed25519Keypair,
-//     name: string,
-//     description: string
-// ): Promise<CollectionCreationResult> {
-//     try {
-//         const tx = new Transaction();
-//         tx.setGasBudget(50000000);
-
-//         // Convert strings to vector<u8>
-//         const nameBytes = Array.from(Buffer.from(name, "utf8"));
-//         const descriptionBytes = Array.from(Buffer.from(description, "utf8"));
-
-//         // Wrap each byte as a 'u8' TransactionArgument
-//         const nameArgs = nameBytes.map((byte) => tx.pure("u8", byte));
-//         const descriptionArgs = descriptionBytes.map((byte) =>
-//             tx.pure("u8", byte)
-//         );
-
-//         // Call the collection creation function
-//         tx.moveCall({
-//             target: "0x2::devnet_nft::create_collection",
-//             arguments: [
-//                 tx.makeMoveVec({ elements: nameArgs }),
-//                 tx.makeMoveVec({ elements: descriptionArgs }),
-//             ],
-//         });
-
-//         console.log("--------------------------------");
-//         console.log({
-//             "Transaction details": tx,
-//         });
-//         console.log("--------------------------------");
-
-//         const result = await suiClient.signAndExecuteTransaction({
-//             transaction: tx,
-//             signer: creator,
-//             options: {
-//                 showEffects: true,
-//                 showEvents: true,
-//                 showObjectChanges: true,
-//             },
-//             requestType: "WaitForLocalExecution",
-//         });
-
-//         console.log("Transaction Result:", JSON.stringify(result, null, 2));
-
-//         if (result.effects?.status?.status !== "success") {
-//             throw new Error(
-//                 result.effects?.status?.error || "Transaction failed"
-//             );
-//         }
-
-//         // Log the created objects for debugging
-//         if (result.effects.created && result.effects.created.length > 0) {
-//             console.log(
-//                 "Created Objects:",
-//                 JSON.stringify(result.effects.created, null, 2)
-//             );
-//         }
-
-//         // Find the created collection object from the transaction effects
-//         const createdObjectRef = result.effects.created?.[0]?.reference;
-//         if (!createdObjectRef) {
-//             throw new Error("No objects were created in the transaction");
-//         }
-
-//         if (!createdObjectRef) {
-//             throw new Error(
-//                 "Could not find created Collection ID in transaction response"
-//             );
-//         }
-
-//         // Fetch the full object to get its type
-//         const createdObject = await suiClient.getObject({
-//             id: createdObjectRef.objectId,
-//             options: {
-//                 showType: true,
-//                 showOwner: true,
-//                 showContent: true,
-//             },
-//         });
-
-//         if (!createdObject || !createdObject.data) {
-//             throw new Error("Failed to fetch the created collection object");
-//         }
-
-//         const objectType = createdObject.data.type ?? "";
-
-//         if (!objectType.startsWith("0x2::nft::Collection")) {
-//             throw new Error(`Unexpected object type: ${objectType}`);
-//         }
-
-//         return {
-//             success: true,
-//             digest: result.digest,
-//             collection: {
-//                 id: createdObject.data.objectId,
-//                 name,
-//                 description,
-//             },
-//         };
-//     } catch (error) {
-//         console.error("Error creating collection:", error);
-//         return {
-//             success: false,
-//             error: (error as Error).message,
-//         };
-//     }
-// }

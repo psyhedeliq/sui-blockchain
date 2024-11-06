@@ -1,3 +1,12 @@
+# Build artifacts
+build/
+*.bak
+
+# Allow specific Move build artifacts
+!src/move/**/build/*.yaml
+!src/move/**/build/*/sources/*.mv
+!src/move/**/build/*/bytecode_modules/*.mv
+
 # Node dependencies
 node_modules/
 dist/
@@ -6,10 +15,15 @@ dist/
 .env
 .env.local
 .env.*.local
+!.env.example
 
 # Keypairs
 src/keypairs/*.json
 !src/keypairs/.gitkeep
+
+# NFT data
+src/data/*.json
+!src/data/.gitkeep
 
 # Logs
 npm-debug.log*

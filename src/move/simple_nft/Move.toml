@@ -1,0 +1,29 @@
+# Package configuration
+[package]
+name = "simple_nft"        # The name of your package. The name must match the module name we use in our Move code
+version = "0.0.1"          # Version tracking for package management
+
+# External dependencies required for the package
+# Sui Framework provides core functionality for Sui blockchain. Specifies required framework dependencies.
+# - Object management (sui::object)
+# - Transfer capabilities (sui::transfer)
+# - Transaction context (sui::tx_context)
+# - Referenced in our code as 0x2
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/devnet" }
+
+# Move standard library provides basic types and utilities
+# - String operations (std::string)
+# - Referenced in our code as 0x1
+MoveStdlib = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/move-stdlib", rev = "framework/devnet" }
+
+# Address mapping for the package. Maps module names to addresses.
+# - This matches our module declaration in the Move code
+[addresses]
+tutorial = "0x0"           # Placeholder address, replaced on deployment
+
+# This configuration enables:
+# - Proper dependency resolution during compilation
+# - Correct address handling for deployment
+# - Framework access for NFT functionality
+# - Version control for reproducible builds

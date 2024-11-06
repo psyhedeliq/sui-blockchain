@@ -1,6 +1,6 @@
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import * as fs from "fs";
-import { Wallet } from "../../types/types";
+import { Wallet } from "../../interfaces/interfaces";
 
 /**
  * Create a new keypair and save it to a file.

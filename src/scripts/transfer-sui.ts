@@ -1,9 +1,14 @@
-import { fundedWallet, recipientWallet } from "./wallets";
-import { getMistBalance, convertMistToSui, getBalance } from "./balance";
-import { transferSui } from "./transaction";
+import { fundedWallet, recipientWallet } from "../services/wallets";
+import {
+    getMistBalance,
+    convertMistToSui,
+    getBalance,
+} from "../services/balance";
+import { transferSui } from "../services/transaction";
 
 /**
  * Transfer SUI to the recipient.
+ * @returns void
  */
 async function transferSuiToRecipient(): Promise<void> {
     const fundingKeypair = fundedWallet.load();
