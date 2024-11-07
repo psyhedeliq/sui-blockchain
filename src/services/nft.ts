@@ -6,9 +6,8 @@ import { suiClient } from "../config/config";
 import { NFTMintResult, TransactionResult } from "../interfaces/interfaces";
 import { compileMovePackage } from "../util/move-compiler";
 
-// Store the package ID after deployment
-export let NFT_PACKAGE_ID: string | null =
-    "0x40de7c21a1b6b13a41de5eb8bdfa562b9529f38d6d97ffa21cb5e6dc0366ff8b";
+// Store the package ID after deploying the NFT package
+export let NFT_PACKAGE_ID: string | null = null;
 
 /**
  * How to handle gas in production:
