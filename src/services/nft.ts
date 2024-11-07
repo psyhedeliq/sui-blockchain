@@ -4,7 +4,11 @@ import fs from "fs";
 import path from "path";
 import { suiClient } from "../config/config";
 import { loadPackageId, savePackageId } from "../config/package-config";
-import { NFTMintResult, TransactionResult } from "../interfaces/interfaces";
+import {
+    NFTMintResult,
+    NFTMoveObject,
+    TransactionResult,
+} from "../interfaces/interfaces";
 import { compileMovePackage } from "../util/move-compiler";
 
 // Store the package ID after deploying the NFT package
@@ -239,6 +243,104 @@ export async function transferNFT(
         };
     } catch (error) {
         console.error("Error transferring NFT:", error);
+        return {
+            success: false,
+            error: (error as Error).message,
+        };
+    }
+}
+
+/**
+ * Retrieves an NFT by its ID.
+ * @param nftId - The ID of the NFT to retrieve.
+ * @returns The NFT object or null if not found.
+ */
+export async function getNFTById(nftId: string): Promise<NFTMoveObject | null> {
+    try {
+        const object = await suiClient.getObject({
+            id: nftId,
+            options: {
+                showContent: true,
+                showType: true,
+                showOwner: true,
+            },
+        });
+
+        if (
+            object.data?.content?.dataType === "moveObject" &&
+            object.data?.content?.type.includes("::simple_nft::SimpleNFT")
+        ) {
+            // Add owner information to the returned object
+            const owner = object.data.owner;
+            let ownerAddress: string | null = null;
+
+            if (owner && typeof owner === "object") {
+                if ("AddressOwner" in owner) {
+                    ownerAddress = owner.AddressOwner;
+                } else if ("ObjectOwner" in owner) {
+                    ownerAddress = owner.ObjectOwner;
+                }
+                // Shared ownership is handled as null
+            }
+
+            return {
+                ...object.data,
+                owner: ownerAddress,
+            } as NFTMoveObject;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error fetching NFT:", error);
+        return null;
+    }
+}
+
+/**
+ * Burns (permanently destroys) an NFT.
+ * @param nftId - The ID of the NFT to burn.
+ * @param owner - The keypair of the owner.
+ * @returns The result of the NFT burning.
+ */
+export async function burnNFT(
+    nftId: string,
+    owner: Ed25519Keypair
+): Promise<TransactionResult> {
+    try {
+        // Verify that the NFT exists and is owned by the sender
+        const nft = await getNFTById(nftId);
+        if (!nft || nft.owner !== owner.toSuiAddress()) {
+            throw new Error("NFT not found or not owned by the sender");
+        }
+
+        const txb = new Transaction();
+        txb.setGasBudget(100000000);
+
+        // Call the burn function from the Move contract
+        txb.moveCall({
+            target: `${NFT_PACKAGE_ID}::simple_nft::burn`,
+            arguments: [txb.object(nftId)],
+        });
+
+        const result = await suiClient.signAndExecuteTransaction({
+            transaction: txb,
+            signer: owner,
+            options: {
+                showEffects: true,
+                showEvents: true,
+                showObjectChanges: true,
+            },
+            requestType: "WaitForLocalExecution",
+        });
+
+        if (result.effects?.status?.status !== "success") {
+            throw new Error(result.effects?.status?.error || "Burn failed");
+        }
+
+        return {
+            success: true,
+            digest: result.digest,
+        };
+    } catch (error) {
         return {
             success: false,
             error: (error as Error).message,

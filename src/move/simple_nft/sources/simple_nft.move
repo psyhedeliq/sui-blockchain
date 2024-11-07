@@ -94,4 +94,14 @@ module tutorial::simple_nft {
         let nft = mint(name, description, url, ctx);
         transfer::transfer(nft, tx_context::sender(ctx))
     }
+
+    /**
+    * The burn function deletes (permanently destroys) the NFT from the sender's account.
+    * Can only be called by the NFT owner
+    * @param nft - The NFT to be burned
+    */
+    public entry fun burn(nft: SimpleNFT) {
+        let SimpleNFT {id, name: _, description: _, url: _} = nft;
+        object::delete(id)
+    }
 }

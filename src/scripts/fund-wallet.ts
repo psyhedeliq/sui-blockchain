@@ -1,12 +1,12 @@
-import { fundedWallet, recipientWallet } from "./services/wallets";
-import { convertMistToSui } from "./services/balance";
-import { fundAccountFromFaucet } from "./services/faucet";
-import { getBalance } from "./services/balance";
+import { fundedWallet, recipientWallet } from "../services/wallets";
+import { convertMistToSui } from "../services/balance";
+import { fundAccountFromFaucet } from "../services/faucet";
+import { getBalance } from "../services/balance";
 
 /**
  * Main function to run the program.
  */
-async function main(): Promise<void> {
+async function fundWallet(): Promise<void> {
     // Load wallets
     const fundingKeypair = fundedWallet.load();
     const recipientKeypair = recipientWallet.load();
@@ -51,6 +51,6 @@ async function main(): Promise<void> {
     });
 }
 
-main().catch((err) => {
+fundWallet().catch((err) => {
     console.error("Error in main:", err);
 });

@@ -19,6 +19,7 @@ async function transferSuiToRecipient(): Promise<void> {
     // dispensed of 10 SUI per call plus the 0.01 SUI cost per call.
     // This can be increased once you have more funds.
     const amountInSui = 1;
+
     console.log("\x1b[36m--------------------------------\x1b[0m");
     console.log(`\x1b[32mTransferring ${amountInSui} SUI\x1b[0m`);
     console.log("\x1b[36m--------------------------------\x1b[0m");

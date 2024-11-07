@@ -10,6 +10,8 @@ A TypeScript project demonstrating basic interactions with the Sui blockchain, i
 - Balance checking and conversion between SUI and MIST
 - Network configuration for different environments (devnet, testnet)
 - NFT minting and transferring using the Sui devnet NFT module
+- NFT checking
+- NFT burning
 
 ## Prerequisites
 
@@ -37,21 +39,47 @@ npm install
 The project uses Sui's devnet by default. To change networks, modify the `NETWORK` constant in:
 
 ```typescript
-src/config.ts
+src/config/config.ts
 ```
 
 ## Usage
 
-Run the project:
+### Individual Commands
+
+Fund your wallet with SUI:
 
 ```bash
-npm start
+npm run fund:wallet
 ```
 
-NFT operations:
+Transfer SUI between wallets:
 
 ```bash
-npm run mint-nft
+npm run transfer:sui
+```
+
+Mint a new NFT:
+
+```bash
+npm run mint:nft
+```
+
+Transfer an NFT to the recipient:
+
+```bash
+npm run transfer:nft
+```
+
+Check owned NFTs:
+
+```bash
+npm run check:nfts
+```
+
+Burn the last minted NFT:
+
+```bash
+npm run burn:nft
 ```
 
 The program will:
@@ -59,17 +87,18 @@ The program will:
 - Create or load existing wallets
 - Request funds from the faucet (10 SUI per request)
 - Transfer SUI between wallets (default 9 SUI)
+- Display transaction results and balances
 - Mint NFTs using the Sui devnet NFT module
 - Transfer NFTs between addresses
-- Display transaction results and balances
+- Check NFTs owned by the recipient address
+- Burn the last minted NFT
 
 ## Important Notes
 
 - Keypair files are stored in the `src/keypairs` directory and are gitignored for security
 - Each faucet request provides 10 SUI and costs 0.01 SUI
 - Maximum transfer amount is limited by available balance (consider faucet amount minus gas fees)
-- NFT minting uses the basic Sui devnet NFT module ```(0x2::devnet_nft)```
-- For production use, consider deploying your own NFT smart contract
+- NFT minting requires a deployed NFT package which you can deploy using the `mint-nft` script
 
 ## Security
 

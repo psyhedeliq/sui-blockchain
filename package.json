@@ -4,12 +4,13 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "ts-node src/main.ts",
+        "fund:wallet": "ts-node src/scripts/fund-wallet.ts",
         "transfer:sui": "ts-node src/scripts/transfer-sui.ts",
         "mint:nft": "ts-node src/scripts/mint-nft.ts",
         "transfer:nft": "ts-node src/scripts/transfer-nft.ts",
         "check:nfts": "ts-node src/scripts/check-nfts.ts",
-        "run-all": "npm run start && npm run transfer:sui && npm run mint:nft && npm run transfer:nft && npm run check:nfts"
+        "burn:nft": "ts-node src/scripts/burn-nft.ts",
+        "run-all": "npm run fund:wallet && npm run transfer:sui && npm run mint:nft && npm run transfer:nft && npm run check:nfts && npm run burn:nft"
     },
     "keywords": [],
     "author": "",
