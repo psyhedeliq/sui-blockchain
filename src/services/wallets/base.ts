@@ -17,7 +17,9 @@ export function createNewKeypair(keypairPath: string): Ed25519Keypair {
 
     // Save the keypair to a file
     fs.writeFileSync(keypairPath, JSON.stringify(exportedKeypair, null, 2));
-    console.log(`Keypair created and saved to ${keypairPath}`);
+    console.log("\x1b[36m--------------------------------\x1b[0m");
+    console.log(`\x1b[32mKeypair created and saved to ${keypairPath}\x1b[0m`);
+    console.log("\x1b[36m--------------------------------\x1b[0m");
 
     return keypair;
 }
@@ -28,7 +30,11 @@ export function createNewKeypair(keypairPath: string): Ed25519Keypair {
  */
 export function loadKeypair(keypairPath: string): Ed25519Keypair {
     if (!fs.existsSync(keypairPath)) {
-        console.log("Keypair file not found. Creating a new keypair...");
+        console.log("\x1b[36m--------------------------------\x1b[0m");
+        console.log(
+            `\x1b[32mKeypair file not found. Creating a new keypair...\x1b[0m`
+        );
+        console.log("\x1b[36m--------------------------------\x1b[0m");
         return createNewKeypair(keypairPath);
     }
 
@@ -38,7 +44,9 @@ export function loadKeypair(keypairPath: string): Ed25519Keypair {
 
         // Create a new keypair from the secret key
         const keypair = Ed25519Keypair.fromSecretKey(keypairData.secretKey);
-        console.log(`Keypair loaded from ${keypairPath}`);
+        console.log("\x1b[36m--------------------------------\x1b[0m");
+        console.log(`\x1b[32mKeypair loaded from ${keypairPath}\x1b[0m`);
+        console.log("\x1b[36m--------------------------------\x1b[0m");
 
         return keypair;
     } catch (error) {

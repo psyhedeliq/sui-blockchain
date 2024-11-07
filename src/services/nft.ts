@@ -3,11 +3,12 @@ import { Transaction } from "@mysten/sui/transactions";
 import fs from "fs";
 import path from "path";
 import { suiClient } from "../config/config";
+import { loadPackageId, savePackageId } from "../config/package-config";
 import { NFTMintResult, TransactionResult } from "../interfaces/interfaces";
 import { compileMovePackage } from "../util/move-compiler";
 
 // Store the package ID after deploying the NFT package
-export let NFT_PACKAGE_ID: string | null = null;
+export let NFT_PACKAGE_ID: string | null = loadPackageId();
 
 /**
  * How to handle gas in production:
@@ -100,6 +101,7 @@ export async function deployNFTPackage(
 
         // Store the package ID, not the upgrade cap ID
         NFT_PACKAGE_ID = packageObject.reference.objectId;
+        savePackageId(NFT_PACKAGE_ID!);
         return NFT_PACKAGE_ID!;
     } catch (error) {
         console.error("Error deploying package:", error);

@@ -73,3 +73,10 @@ export interface NFTMoveObject extends SuiObjectData {
         | null
         | undefined;
 }
+
+/**
+ * Define the package configuration interface
+ */
+export interface PackageConfig {
+    NFT_PACKAGE_ID: string | null;
+}
