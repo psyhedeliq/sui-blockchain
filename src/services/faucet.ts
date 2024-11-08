@@ -20,7 +20,7 @@ export async function fundAccountFromFaucet(address: string): Promise<boolean> {
         if (!response?.error) {
             console.log("\x1b[36m--------------------------------\x1b[0m");
             console.log(
-                `\x1b[32mRequested funds from faucet for address ${address}\x1b[0m`
+                `\x1b[32mRequested funds from faucet for address: ${address}\x1b[0m`
             );
             console.log("\x1b[36m--------------------------------\x1b[0m");
         } else {

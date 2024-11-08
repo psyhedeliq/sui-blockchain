@@ -40,7 +40,6 @@ export async function transferSui(
             requestType: "WaitForLocalExecution",
         });
 
-        // Log success and transaction details
         console.log("\x1b[32m--------------------------------");
         console.table({
             Status: "Success ✅",

@@ -2,7 +2,7 @@ import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Transaction } from "@mysten/sui/transactions";
 import fs from "fs";
 import path from "path";
-import { suiClient } from "../config/config";
+import { GAS_BUDGET, suiClient } from "../config/config";
 import { loadPackageId, savePackageId } from "../config/package-config";
 import {
     NFTMintResult,
@@ -41,7 +41,7 @@ export async function deployNFTPackage(
             await compileMovePackage(movePath);
         } catch (error) {
             console.error("Error compiling Move code:", error);
-            throw new Error("Failed to compile Move code");
+            throw new Error("Failed to compile Move code in NFT package");
         }
 
         // Read the compiled bytecode
@@ -55,7 +55,7 @@ export async function deployNFTPackage(
         // Create a new transaction object
         const txb = new Transaction();
         // Set a gas budget for the transaction
-        txb.setGasBudget(100000000);
+        txb.setGasBudget(GAS_BUDGET); // amount in MIST
 
         // Publish the compiled bytecode to the Sui network
         // upgradeCap stands for "upgrade capability" and is a standard pattern in Sui
@@ -99,7 +99,7 @@ export async function deployNFTPackage(
 
         if (!packageObject?.reference?.objectId) {
             throw new Error(
-                "Could not find package ID in transaction response"
+                "Could not find package ID in NFT deployment transaction response"
             );
         }
 
@@ -108,7 +108,7 @@ export async function deployNFTPackage(
         savePackageId(NFT_PACKAGE_ID!);
         return NFT_PACKAGE_ID!;
     } catch (error) {
-        console.error("Error deploying package:", error);
+        console.error("Error deploying NFT package:", error);
         throw error;
     }
 }
@@ -131,7 +131,7 @@ export async function mintNFT(
     try {
         const txb = new Transaction();
         // Set a gas budget for the transaction
-        txb.setGasBudget(100000000);
+        txb.setGasBudget(GAS_BUDGET); // amount in MIST
 
         /**
          * The minting process uses moveCall to interact with our Move contract:
@@ -206,7 +206,7 @@ export async function transferNFT(
     try {
         const txb = new Transaction();
         // Set a gas budget for the transaction
-        txb.setGasBudget(100000000);
+        txb.setGasBudget(GAS_BUDGET); // amount in MIST
 
         /**
          * The transfer implementation:
@@ -313,7 +313,7 @@ export async function burnNFT(
         }
 
         const txb = new Transaction();
-        txb.setGasBudget(100000000);
+        txb.setGasBudget(GAS_BUDGET); // amount in MIST
 
         // Call the burn function from the Move contract
         txb.moveCall({

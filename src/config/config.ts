@@ -19,3 +19,6 @@ export const suiClient = new SuiClient({ url: version });
 
 // Get the faucet host for the network
 export const faucetHost = getFaucetHost(NETWORK);
+
+// Define the gas budget for transactions
+export const GAS_BUDGET = 1000000000; // 1 SUI or 1000000000 MIST

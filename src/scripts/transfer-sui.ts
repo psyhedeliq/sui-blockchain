@@ -18,7 +18,7 @@ async function transferSuiToRecipient(): Promise<void> {
     // Initial amount to transfer up to 9 SUI, because of the faucet mount of SUI
     // dispensed of 10 SUI per call plus the 0.01 SUI cost per call.
     // This can be increased once you have more funds.
-    const amountInSui = 1;
+    const amountInSui = 1; // 1 SUI equivalent to 1000000000 MIST
 
     console.log("\x1b[36m--------------------------------\x1b[0m");
     console.log(`\x1b[32mTransferring ${amountInSui} SUI\x1b[0m`);

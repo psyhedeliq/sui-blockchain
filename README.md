@@ -1,6 +1,6 @@
 # Sui TypeScript Project
 
-A TypeScript project demonstrating basic interactions with the Sui blockchain, including wallet management, faucet requests, and token transfers.
+A TypeScript project demonstrating basic interactions with the Sui blockchain, including wallet management, faucet requests, token transfers, NFT minting, transferring and burning, and storing and retrieving immutable data on-chain.
 
 ## Features
 
@@ -12,6 +12,7 @@ A TypeScript project demonstrating basic interactions with the Sui blockchain, i
 - NFT minting and transferring using the Sui devnet NFT module
 - NFT checking
 - NFT burning
+- Storing and retrieving immutable data on-chain
 
 ## Prerequisites
 
@@ -82,6 +83,30 @@ Burn the last minted NFT:
 npm run burn:nft
 ```
 
+Store data on-chain:
+
+```bash
+npm run store:data
+```
+
+Retrieve data from-chain:
+
+```bash
+npm run get:data
+```
+
+Run all commands and transfer, except burning:
+
+```bash
+npm run run:all:transfer
+```
+
+Run all commands and burn, except transferring:
+
+```bash
+npm run run:all:burn
+```
+
 The program will:
 
 - Create or load existing wallets
@@ -96,9 +121,13 @@ The program will:
 ## Important Notes
 
 - Keypair files are stored in the `src/keypairs` directory and are gitignored for security
+- The package config is stored in `src/config/config.ts`
+- The last minted NFT data is stored in `src/data/last-minted-nft.json`
+- The stored data object ID is stored in `src/data/stored-data-object-id.json`
 - Each faucet request provides 10 SUI and costs 0.01 SUI
 - Maximum transfer amount is limited by available balance (consider faucet amount minus gas fees)
 - NFT minting requires a deployed NFT package which you can deploy using the `mint-nft` script
+- Data storage requires a deployed storage package which you can deploy using the `store-data` script
 
 ## Security
 

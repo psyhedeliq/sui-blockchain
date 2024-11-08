@@ -10,7 +10,10 @@
         "transfer:nft": "ts-node src/scripts/transfer-nft.ts",
         "check:nfts": "ts-node src/scripts/check-nfts.ts",
         "burn:nft": "ts-node src/scripts/burn-nft.ts",
-        "run-all": "npm run fund:wallet && npm run transfer:sui && npm run mint:nft && npm run transfer:nft && npm run check:nfts && npm run burn:nft"
+        "store:data": "ts-node src/scripts/store-data.ts",
+        "get:data": "ts-node src/scripts/get-data.ts",
+        "run:all:transfer": "npm run fund:wallet && npm run transfer:sui && npm run mint:nft && npm run transfer:nft && npm run check:nfts",
+        "run:all:burn": "npm run fund:wallet && npm run transfer:sui && npm run mint:nft && npm run check:nfts && npm run burn:nft"
     },
     "keywords": [],
     "author": "",

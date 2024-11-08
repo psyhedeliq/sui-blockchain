@@ -2,7 +2,7 @@ import {
     SuiObjectData,
     SuiTransactionBlockResponse,
     TransactionEffects,
-} from "@mysten/sui/dist/cjs/client";
+} from "@mysten/sui/client";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { NFTFields } from "../types/types";
 
@@ -79,4 +79,41 @@ export interface NFTMoveObject extends SuiObjectData {
  */
 export interface PackageConfig {
     NFT_PACKAGE_ID: string | null;
+}
+
+/**
+ * Define the storage data interface
+ */
+export interface StorageData {
+    id: string;
+    data: string;
+    timestamp: number;
+    dataType: string;
+    creator: string;
+}
+
+/**
+ * Define the storage result interface
+ */
+export interface StorageResult extends TransactionResult {
+    storageData?: StorageData;
+}
+
+/**
+ * Define the storage fields interface
+ */
+export interface StorageFields {
+    data: string;
+    timestamp: number;
+    data_type: string;
+    creator: string;
+}
+
+/**
+ * Define the parsed JSON interface
+ */
+export interface ParsedJson {
+    id: string;
+    data_type: string;
+    timestamp: string;
 }

@@ -1,4 +1,4 @@
-import { CoinBalance } from "@mysten/sui/dist/cjs/client";
+import { CoinBalance } from "@mysten/sui/client";
 import { convertMistToSui, getBalance } from "../services/balance";
 
 /**
