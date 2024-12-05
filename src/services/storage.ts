@@ -150,7 +150,7 @@ export async function storeImmutableData(
         const storageData = {
             id: parsedJson?.id ?? "",
             data: data,
-            timestamp: Number(storageEvent?.timestampMs || 0),
+            timestamp: Number(storageEvent?.timestampMs ?? Date.now()),
             dataType: dataType,
             creator: creator.toSuiAddress(),
         };

@@ -53,7 +53,8 @@ module storage_app::immutable_storage {
         timestamp: u64,
         version: u8,
         data_type: String,
-        creator: address
+        creator: address,
+        // is_deleted: bool
     }
 
     /**
@@ -85,7 +86,8 @@ module storage_app::immutable_storage {
             timestamp, // Use the current epoch as the timestamp
             version: 1, // Initial version number
             data_type: string::utf8(data_type), // Convert the data type to a UTF-8 string
-            creator: sender // Set the creator's address
+            creator: sender, // Set the creator's address
+            // is_deleted: false // Set the is_deleted flag to false
         };
 
         // Emit an event to signal that a new storage item has been created
@@ -100,6 +102,24 @@ module storage_app::immutable_storage {
 
         // Make the storage object immutable and store it on the blockchain
         // This ensures that the data cannot be modified after creation, preserving its integrity
+        // transfer::transfer(storage, sender);
+        // transfer::share_object(storage);
         transfer::freeze_object(storage);
     }
+
+    // const E_NOT_AUTHORIZED: u64 = 0;
+
+    // public entry fun delete_data(
+    //     storage: &mut StorageItem,
+    //     ctx: &mut TxContext
+    // ) {
+    //     let sender = tx_context::sender(ctx);
+    //     assert!(
+    //         sender == storage.creator,
+    //         E_NOT_AUTHORIZED
+    //     );
+
+    //     // Mark as deleted
+    //     storage.is_deleted = true;
+    // }
 }

@@ -105,3 +105,25 @@ module tutorial::simple_nft {
         object::delete(id)
     }
 }
+// TODO: Implement the delete_data function
+// public entry fun delete_data(
+//     storage: StorageItem,
+//     ctx: &mut TxContext
+// ) {
+//     let sender = tx_context::sender(ctx);
+//     assert!(sender == storage.creator, 0); // Ensure only creator can delete
+
+//     // Destructure the storage item
+//     let StorageItem {
+//         id,
+//         data: _,
+//         timestamp: _,
+//         version: _,
+//         data_type: _,
+//         creator: _
+//     } = storage;
+
+//     // Explicitly delete the UID
+//     object::delete(id);
+//     // Other fields are dropped automatically
+// }
